@@ -1,0 +1,6 @@
+name: Locale-API
+version: '${project.version}'
+main: de.unpixelt.locale.Translate
+authors: [Unpixelt]
+commands:
+  usedlocales:
