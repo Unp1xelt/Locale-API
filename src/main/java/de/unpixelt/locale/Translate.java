@@ -9,12 +9,12 @@
 
 package de.unpixelt.locale;
 
+import com.google.common.base.Preconditions;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.enchantments.EnchantmentWrapper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TropicalFish;
@@ -23,10 +23,10 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -90,7 +90,8 @@ public final class Translate extends JavaPlugin {
      * @param p the player
      * @return {@link Locale} the player's locale
      */
-    public static Locale getLocale(Player p) {
+    @NotNull
+    public static Locale getLocale(@NotNull Player p) {
         return Locale.valueOf(p.getLocale());
     }
 
@@ -98,9 +99,10 @@ public final class Translate extends JavaPlugin {
      * Returns the translation of the key's value.
      * @param key the key to translate
      * @param locale the locale to translate
-     * @return Translation of the key as {@link String}
+     * @return Translation of the key or {@code null} if the key does not exist
      */
-    public static String getCustomKey(String key, Locale locale) {
+    @Nullable
+    public static String getCustomValue(@NotNull String key, @NotNull Locale locale) {
         return CACHE.getUnchecked(locale).getValue(key);
     }
 
@@ -109,38 +111,37 @@ public final class Translate extends JavaPlugin {
      *
      * @return An unmodifiable {@code List} containing all keys for this locale
      */
-    public static List<String> getAllKey(Locale locale) {
+    @NotNull
+    public static List<String> getAllKey(@NotNull Locale locale) {
         return CACHE.getUnchecked(locale).getKeys();
     }
 
-    public static String getBiome(Player p, Biome biome) {
+
+    @NotNull
+    public static String getBiome(@NotNull Player p, @NotNull Biome biome) {
         return getBiome(getLocale(p), biome);
     }
 
-    public static String getBiome(Locale locale, Biome biome) {
-        if (biome == Biome.CUSTOM) return null;
-        return CACHE.getUnchecked(locale).getValue("biome.minecraft." + biome.name());
-    }
+    @NotNull
+    public static String getBiome(@NotNull Locale locale, @NotNull Biome biome) {
+        String name = biome.name().toLowerCase();
+        if (name.equals("custom")) return "Custom";
 
-    public static Map<Biome, String> getBiomes(Locale locale) {
-        Map<Biome, String> biomes = new HashMap<>();
-
-        for(Biome biome : Biome.values()) {
-            biomes.put(biome, getBiome(locale, biome));
-        }
-
-        return biomes;
+        return CACHE.getUnchecked(locale).getValue("biome.minecraft." + name);
     }
 
 
-    public static String getMaterial(Player p, Material mat) {
+    @NotNull
+    public static String getMaterial(@NotNull Player p, @NotNull Material mat) {
         return getMaterial(getLocale(p), mat);
     }
 
-    public static String getMaterial(Locale locale, Material mat) {
+    @NotNull
+    public static String getMaterial(@NotNull Locale locale, @NotNull Material mat) {
         LocaleReader reader = CACHE.getUnchecked(locale);
-        String name = mat.name();
-        if (name.contains("WALL_")) name = name.replace("WALL_", "");
+        String name = mat.getKey().getKey();
+
+        if (name.contains("wall_")) name = name.replace("wall_", "");
 
         if (mat.isBlock()) {
             return reader.getValue("block.minecraft." + name);
@@ -149,31 +150,27 @@ public final class Translate extends JavaPlugin {
         }
     }
 
-    public static Map<Material, String> getMaterials(Locale locale) {
-        Map<Material, String> materials = new HashMap<>();
-
-        for(Material mat : Material.values()) {
-            materials.put(mat, getMaterial(locale, mat));
-        }
-
-        return materials;
-    }
-
-
     /**
      * An enum of all potion types.
      */
     public enum PotionSort {
         POTION,
         SPLASH_POTION,
-        LINGERING_POTION,
+        LINGERING_POTION;
+
+        @Override
+        public String toString() {
+            return name().toLowerCase();
+        }
     }
 
-    public static String getPotion(Player p, PotionType type, PotionSort sort) {
+    @NotNull
+    public static String getPotion(@NotNull Player p, @NotNull PotionType type, @NotNull PotionSort sort) {
         return getPotion(getLocale(p), type, sort);
     }
 
-    public static String getPotion(Locale locale, PotionType type, PotionSort sort) {
+    @NotNull
+    public static String getPotion(@NotNull Locale locale, @NotNull PotionType type, @NotNull PotionSort sort) {
         String name = type.name();
         switch (type) {
             case REGEN:
@@ -196,25 +193,21 @@ public final class Translate extends JavaPlugin {
                 break;
         }
 
-        return CACHE.getUnchecked(locale).getValue("item.minecraft." + sort.name() + ".effect." + name);
-    }
-
-    public static Map<PotionType, String> getPotions(Locale locale, PotionSort sort) {
-        Map<PotionType, String> potions = new HashMap<>();
-
-        for(PotionType type : PotionType.values()) {
-            potions.put(type, getPotion(locale, type, sort));
-        }
-
-        return potions;
+        return CACHE.getUnchecked(locale).getValue("item.minecraft." + sort + ".effect." + name.toLowerCase());
     }
 
 
-    public static String getEffect(Player p, PotionEffectType type) {
+    @Nullable
+    public static String getEffect(@NotNull Player p, @Nullable PotionEffectType type) {
         return getEffect(getLocale(p), type);
     }
 
-    public static String getEffect(Locale locale, PotionEffectType type) {
+    @Nullable
+    public static String getEffect(@NotNull Locale locale, @Nullable PotionEffectType type) {
+        if (type == null) {
+            return CACHE.getUnchecked(locale).getValue("effect.none");
+        }
+
         String name = type.getName();
         switch (type.getId()) {
             case 2:
@@ -227,13 +220,13 @@ public final class Translate extends JavaPlugin {
                 name = "MINING_FATIGUE";
                 break;
             case 5:
-                name = PotionType.STRENGTH.name();
+                name = "STRENGTH";
                 break;
             case 6:
                 name = "INSTANT_HEALTH";
                 break;
             case 7:
-                name = PotionType.INSTANT_DAMAGE.name();
+                name = "INSTANT_DAMAGE";
                 break;
             case 8:
                 name = "JUMP_BOOST";
@@ -246,93 +239,66 @@ public final class Translate extends JavaPlugin {
                 break;
         }
 
-        return CACHE.getUnchecked(locale).getValue("effect.minecraft." + name);
-    }
-
-    public static Map<PotionEffectType, String> getEffects(Locale locale) {
-        Map<PotionEffectType, String> effects = new HashMap<>();
-
-        for(PotionEffectType type : PotionEffectType.values()) {
-            effects.put(type, getEffect(locale, type));
-        }
-
-        return effects;
+        return CACHE.getUnchecked(locale).getValue("effect.minecraft." + name.toLowerCase());
     }
 
 
-    public static String getEnchantment(Player p, Enchantment ench) {
+    @Nullable
+    public static String getEnchantment(@NotNull Player p, @NotNull Enchantment ench) {
         return getEnchantment(getLocale(p), ench);
     }
 
-    public static String getEnchantment(Locale locale, Enchantment ench) {
+    @Nullable
+    public static String getEnchantment(@NotNull Locale locale, @NotNull Enchantment ench) {
         return CACHE.getUnchecked(locale).getValue("enchantment.minecraft." + ench.getKey().getKey());
     }
 
-    public static Map<Enchantment, String> getEnchantments(Locale locale) {
-        Map<Enchantment, String> enchantments = new HashMap<>();
 
-        for(Enchantment ench : EnchantmentWrapper.values()) {
-            enchantments.put(ench, getEnchantment(locale, ench));
-        }
-
-        return enchantments;
-    }
-
-
-    public static String getEntity(Player p, EntityType type) {
+    @NotNull
+    public static String getEntity(@NotNull Player p, @NotNull EntityType type) {
         return getEntity(getLocale(p), type);
     }
 
-    public static String getEntity(Locale locale, EntityType type) {
-        if (type == EntityType.UNKNOWN) return CACHE.getUnchecked(locale).getValue("entity.notFound");
-        return CACHE.getUnchecked(locale).getValue("entity.minecraft." + type.getKey().getKey());
-    }
+    @NotNull
+    public static String getEntity(@NotNull Locale locale, @NotNull EntityType type) {
+        String name = type.getName();
+        if (name == null) return CACHE.getUnchecked(locale).getValue("entity.notFound");
 
-    public static Map<EntityType, String> getEntities(Locale locale) {
-        Map<EntityType, String> enchantments = new HashMap<>();
-
-        for(EntityType type : EntityType.values()) {
-            enchantments.put(type, getEntity(locale, type));
-        }
-
-        return enchantments;
+        return CACHE.getUnchecked(locale).getValue("entity.minecraft." + name.toLowerCase());
     }
 
 
-    public static String getVillager(Player p, Villager.Profession type) {
+    @NotNull
+    public static String getVillager(@NotNull Player p, @NotNull Villager.Profession type) {
         return getVillager(getLocale(p), type);
     }
 
-    public static String getVillager(Locale locale, Villager.Profession type) {
-        return CACHE.getUnchecked(locale).getValue("entity.minecraft.villager." + type.name());
+    @NotNull
+    public static String getVillager(@NotNull Locale locale, @NotNull Villager.Profession type) {
+        return CACHE.getUnchecked(locale).getValue("entity.minecraft.villager." + type.name().toLowerCase());
     }
 
-    public static Map<Villager.Profession, String> getVillagers(Locale locale) {
-        Map<Villager.Profession, String> profession = new HashMap<>();
+    @Nullable
+    public static String getVillager(@NotNull Player p, @NotNull Object career) {
+        return getVillager(getLocale(p), career);
+    }
 
-        for(Villager.Profession type : Villager.Profession.values()) {
-            profession.put(type, getVillager(locale, type));
-        }
+    @Nullable
+    public static String getVillager(@NotNull Locale locale, @NotNull Object career) {
+        Preconditions.checkArgument(career.getClass().getSimpleName().equals("Career"), "Are you using Villager.Career ???");
 
-        return profession;
+        String name = career.toString().replace("_", "").toLowerCase();
+        return CACHE.getUnchecked(locale).getValue("entity.minecraft.villager." + name);
     }
 
 
-    public static String getTropicalFish(Player p, TropicalFish.Pattern type) {
+    @NotNull
+    public static String getTropicalFish(@NotNull Player p, @NotNull TropicalFish.Pattern type) {
         return getTropicalFish(getLocale(p), type);
     }
 
-    public static String getTropicalFish(Locale locale, TropicalFish.Pattern type) {
-        return CACHE.getUnchecked(locale).getValue("entity.minecraft.tropical_fish.type." + type.name());
-    }
-
-    public static Map<TropicalFish.Pattern, String> getTropicalFishes(Locale locale) {
-        Map<TropicalFish.Pattern, String> pattern = new HashMap<>();
-
-        for(TropicalFish.Pattern type : TropicalFish.Pattern.values()) {
-            pattern.put(type, getTropicalFish(locale, type));
-        }
-
-        return pattern;
+    @NotNull
+    public static String getTropicalFish(@NotNull Locale locale, @NotNull TropicalFish.Pattern type) {
+        return CACHE.getUnchecked(locale).getValue("entity.minecraft.tropical_fish.type." + type.name().toLowerCase());
     }
 }
