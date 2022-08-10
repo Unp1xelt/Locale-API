@@ -52,6 +52,7 @@ import java.util.*;
 class LocaleReader {
 
     private final JsonObject json;
+    private final Locale locale;
 
     /**
      * Constructs an LocaleReader for the given locale.
@@ -59,6 +60,7 @@ class LocaleReader {
      * @param locale the locale used
      */
     LocaleReader(@NotNull Locale locale) {
+        this.locale = locale;
         String fileName = locale.name() + ".json";
         InputStream inputStream = getFileFromResourceAsStream( "lang/" + fileName);
         InputStreamReader streamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
@@ -69,14 +71,18 @@ class LocaleReader {
     }
 
     /**
-     * Returns the value with the specific key. This key will be lowercase.
+     * Returns the value with the specific key.
      *
      * @param key name of the key that is requested.
      * @return Value as {@code String}. If this key does not exist {@code null}
      *         is returned.
      */
     String getValue(@NotNull String key) {
-        return json.get(key.toLowerCase()).getAsString();
+        JsonElement element = json.get(key);
+        if (element == null && locale != Locale.en_us) {
+            return Translate.getCustomValue(key, Locale.en_us);
+        }
+        return element.getAsString();
     }
 
     /**
