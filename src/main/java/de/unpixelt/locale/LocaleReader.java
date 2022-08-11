@@ -73,13 +73,20 @@ class LocaleReader {
     /**
      * Returns the value with the specific key.
      *
-     * @param key name of the key that is requested.
+     * If the key does not exist, first it will check if an English translation
+     * is available if not it returns null.
+     *
+     * @param key Name of the key that is requested.
      * @return Value as {@code String}. If this key does not exist {@code null}
      *         is returned.
      */
     String getValue(@NotNull String key) {
         JsonElement element = json.get(key);
-        if (element == null && locale != Locale.en_us) {
+        if (element == null) {
+            if (locale == Locale.en_us) {
+                return null;
+            }
+                
             return Translate.getCustomValue(key, Locale.en_us);
         }
         return element.getAsString();
@@ -103,7 +110,7 @@ class LocaleReader {
     /**
      * Returns an {@code InputStream} from the resource.
      *
-     * @param path the resource filepath
+     * @param path The resource filepath
      * @return {@link InputStream} from the resource file
      * @throws IllegalArgumentException If this path to the resource does not
      *         exist
