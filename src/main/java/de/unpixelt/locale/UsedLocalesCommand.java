@@ -11,6 +11,10 @@ package de.unpixelt.locale;
 
 import org.bukkit.command.*;
 import org.jetbrains.annotations.NotNull;
+
+/**
+ * Command for showing how many {@code Locale}'s are used.
+ */
 class UsedLocalesCommand implements CommandExecutor {
 
     final LocaleCounter counter;
