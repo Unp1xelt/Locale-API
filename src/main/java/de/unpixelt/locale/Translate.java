@@ -23,8 +23,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.*;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -45,7 +44,9 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * When a translation is requested the specific {@code Locale} is cached for two
  * minutes. If in that two minutes no further requests are taken it will be
- * automatically cleared from the cache.
+ * automatically cleared from the cache. It will also be cleared from the cache
+ * if no players are using this {@code Locale} in example if a player is leaving
+ * or changing his {@code Locale}.
  */
 public final class Translate extends JavaPlugin {
 
@@ -87,7 +88,7 @@ public final class Translate extends JavaPlugin {
 
     /**
      * Returns the current local the player is using.
-     * @param p the player
+     * @param p The player
      * @return {@link Locale} the player's locale
      */
     @NotNull
@@ -97,8 +98,8 @@ public final class Translate extends JavaPlugin {
 
     /**
      * Returns the translation of the key's value.
-     * @param key the key to translate
-     * @param locale the locale to translate
+     * @param key The key to translate
+     * @param locale The locale to translate
      * @return Translation of the key or {@code null} if the key does not exist
      */
     @Nullable
@@ -107,8 +108,20 @@ public final class Translate extends JavaPlugin {
     }
 
     /**
+     * Returns the translation of the key's value.
+     * @param key The key to translate
+     * @param p The player
+     * @return Translation of the key or {@code null} if the key does not exist
+     */
+    @Nullable
+    public static String getCustomValue(@NotNull String key, @NotNull Player p) {
+        return getCustomValue(key, getLocale(p));
+    }
+
+    /**
      * Returns all keys for the locale.
      *
+     * @param locale The chosen locale
      * @return An unmodifiable {@code List} containing all keys for this locale
      */
     @NotNull
