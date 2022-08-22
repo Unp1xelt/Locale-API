@@ -10,12 +10,12 @@
     <packaging>jar</packaging>
 
     <name>Locale-API</name>
-    <url>https://github.com/Unp1xelt</url>
+    <url>https://github.com/Unp1xelt/Locale-API</url>
 
     <licenses>
         <license>
-            <name>Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <name>Mozilla Public License 2.0</name>
+            <url>http://mozilla.org/MPL/2.0/</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -38,6 +38,14 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <finalName>locale-api-${project.version}</finalName>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.2.4</version>
                 <executions>
@@ -54,41 +62,10 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <finalName>locale-api-${project.version}</finalName>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>3.2.1</version>
                 <configuration>
                     <finalName>locale-api-${project.version}</finalName>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.1.1</version>
-                <configuration>
-                    <finalName>locale-api-${project.version}</finalName>
-                    <tags>
-                        <tag>
-                            <name>apiNote</name>
-                            <placement>a</placement>
-                            <head>API Note:</head>
-                        </tag>
-                    </tags>
-                    <show>private</show>
-                    <doctitle>Locale-API</doctitle>
-                    <links>
-                        <link>https://guava.dev/releases/31.0-jre/api/docs/</link>
-                        <link>https://hub.spigotmc.org/javadocs/spigot/</link>
-                    </links>
-                    <reportOutputDirectory>${project.basedir}</reportOutputDirectory>
-                    <destDir>apidocs</destDir>
                 </configuration>
             </plugin>
         </plugins>
