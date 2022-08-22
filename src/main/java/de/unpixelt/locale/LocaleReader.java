@@ -24,7 +24,7 @@ import java.util.*;
  * LocalReader is used for loading a {@code Locale} from the resources folder and
  * accessing their keys and values.
  *
- * <p> All keys are in American English and lowercase. Their represent
+ * <p> All keys are in American English. Their represent
  * <ul>
  *     <li>*Advancements
  *     <li>*Arguments for Commands
@@ -57,7 +57,7 @@ class LocaleReader {
     /**
      * Constructs an LocaleReader for the given locale.
      *
-     * @param locale the locale used
+     * @param locale The locale used
      */
     LocaleReader(@NotNull Locale locale) {
         this.locale = locale;
@@ -86,7 +86,7 @@ class LocaleReader {
             if (locale == Locale.en_us) {
                 return null;
             }
-                
+
             return Translate.getCustomValue(key, Locale.en_us);
         }
         return element.getAsString();
