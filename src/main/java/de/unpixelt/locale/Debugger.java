@@ -14,7 +14,7 @@ package de.unpixelt.locale;
  * or cleared from the cache, by default this is disabled.
  * @see Locale
  */
-class Debugger {
+public class Debugger {
 
     private boolean showCaching = false;
 
