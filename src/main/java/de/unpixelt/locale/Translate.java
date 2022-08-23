@@ -70,8 +70,6 @@ public final class Translate extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new LocaleChangeListener(counter), this);
         getCommand(COMMAND_NAME).setExecutor(command);
-
-        DEBUGGER.setShowCaching(true);
     }
 
     public static Plugin getPlugin() {
