@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.*;
 import org.jetbrains.annotations.NotNull;
+import org.spigotmc.event.player.PlayerSpawnLocationEvent;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -35,7 +36,7 @@ class LocaleChangeListener implements Listener {
     }
 
     @EventHandler
-    private void onListCommands(PlayerCommandSendEvent e) {
+    private void onListCommands(@NotNull PlayerCommandSendEvent e) {
         e.getCommands().remove(Translate.COMMAND_NAME);
         e.getCommands().remove(Translate.getPlugin().getName().toLowerCase() + ":" + Translate.COMMAND_NAME);
     }
@@ -53,7 +54,7 @@ class LocaleChangeListener implements Listener {
     }
 
     @EventHandler
-    private void onPlayerJoinEvent(@NotNull PlayerJoinEvent e) {
+    private void onPlayerSpawnEvent(@NotNull PlayerSpawnLocationEvent e) {
         Bukkit.getScheduler().runTaskLater(Translate.getPlugin(), () -> {
             Player p = e.getPlayer();
             Locale locale = Translate.getLocale(p);
@@ -66,7 +67,7 @@ class LocaleChangeListener implements Listener {
     }
 
     @EventHandler
-    private void onPlayerQuitEvent(PlayerQuitEvent e) {
+    private void onPlayerQuitEvent(@NotNull PlayerQuitEvent e) {
         Locale oldLocale = playerLocale.remove(e.getPlayer().getUniqueId());
 
         counter.decrement(oldLocale);
