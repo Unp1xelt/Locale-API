@@ -63,7 +63,7 @@ class LocaleChangeListener implements Listener {
 
             playerLocale.put(p.getUniqueId(), locale);
             counter.increment(locale);
-        }, 20);
+        }, 30);
     }
 
     @EventHandler
