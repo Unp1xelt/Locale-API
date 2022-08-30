@@ -54,16 +54,21 @@ class LocaleChangeListener implements Listener {
     }
 
     @EventHandler
-    private void onPlayerSpawnEvent(@NotNull PlayerSpawnLocationEvent e) {
+    private void onPlayerJoinEvent(@NotNull PlayerJoinEvent e) {
+        // This event is called after PlayerSpawnLocationEvent, although the
+        // documentation says otherwise.
+        // Locale is initialized around to seconds after this event.
         Bukkit.getScheduler().runTaskLater(Translate.getPlugin(), () -> {
             Player p = e.getPlayer();
             Locale locale = Translate.getLocale(p);
 
+            // By default, the locale is set to 'en_us'. PlayerLocaleChangeEvent
+            // is called, if the player's locale isn't 'en_us'.
             if (locale != Locale.en_us) return;
 
             playerLocale.put(p.getUniqueId(), locale);
             counter.increment(locale);
-        }, 30);
+        }, 45L);
     }
 
     @EventHandler
