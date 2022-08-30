@@ -28,10 +28,57 @@ Some ``Locale's`` like ``got_de, gv_im, kab_kab, mi_nz, moh_ca, nuk, oj_ca, qya_
 have a high amount of untranslated Strings (over 100) and should not be used.</br>
 If used and the key is not found, it will use the translation of ``Locale.en_us``. 
 
+### PlayerJoinEvent
+
+When a player joins the server the player's ``Locale`` is initialized around 2 
+seconds later. Because of that you have to delay any action were you want to use
+the player's ``Locale``.
+</br><strong>DO NOT</strong> use a delay below 50 Ticks. 
+```java
+@EventHandler
+private void onPlayerJoinEvent(PlayerJoinEvent e) {
+    Bukkit.getScheduler().runTaskLater(YOUR_PLUGIN, () -> {
+        Locale locale = Translate.getLocale(e.getPlayer());
+        ...
+    }, 50L); // 2.5s
+}
+```
+
+### PlayerLocaleChangeEvent
+
+This event has the same issue as the PlayerJoinEvent. The change of the ``Locale`` 
+is delayed updated in the player object. To get the new locale instantly use 
+``e.getLocale()`` instead. 
+```java
+@EventHandler
+private void onPlayerLocaleChange(PlayerLocaleChangeEvent e) {
+    Locale newLocale = Locale.valueOf(e.getLocale());
+    
+    // DO NOT USE THIS
+    Locale oldLocale = Translate.getLocale(e.getPlayer());
+}
+```
+
+If you want to use the old ``Locale`` of the player later you should save it in 
+a HashMap. Because after around 2 seconds the locale of the player object will be 
+updated to the new ``Locale``.
+```java
+private final HashMap<Player, Locale> playerLocale = new HashMap<>();
+
+@EventHandler
+private void onPlayerLocaleChange(PlayerLocaleChangeEvent e) {
+    Locale newLocale = Locale.valueOf(e.getLocale());
+
+    Player p = e.getPlayer();
+    playerLocale.put(p, Translate.getLocale(p));
+    Locale oldLocale = playerLocale.get(e.getPlayer());
+}
+```
+
 
 ## Example
 
-In this example we create a simple lootbox item with a lore which shows the 
+In this example we create a special chest item with a lore which shows the 
 Material requirements to open it in the player's language used.
 
 First we create the lore, but we save it in the ``LocalizedName``.
@@ -80,38 +127,45 @@ public void updateLore(Player p, ItemStack item) {
 
 </br>Last but not least events.
 ```java
-// Give every player that joins a lootbox.
+// Give every player that joins a special chest.
 @EventHandler
-public void onPlayerJoinEvent(PlayerJoinEvent e) {
-    Player p = e.getPlayer();
-    ItemStack lootbox = getLootboxItem();
-    updateLore(p, lootbox);
-    p.getInventory().addItem(lootbox);
+private void onPlayerSpawnEvent(PlayerJoinEvent e) {
+    // Because the locale of a player is initialized later, we have to delay
+    // this event. DO NOT go below 50 Ticks (2.5s) or else the locale will
+    // not be initialized properly.
+    Bukkit.getScheduler().runTaskLater(YOUR_PLUGIN, () -> {
+        Player p = e.getPlayer();
+        ItemStack specialChest = getSpecialChest();
+        updateLore(p, specialChest);
+        p.getInventory().addItem(specialChest);
+    }, 50L);
 }
 
-// When a lootbox is picked up it will update the requirements in the lore to
+// When a special chest is picked up it will update the requirements in the lore to
 // the player's locale.
 @EventHandler
-public void onPlayerPickup(EntityPickupItemEvent e) {
+private void onPlayerPickup(EntityPickupItemEvent e) {
     if (e.getEntity() instanceof Player) {
         Player p = (Player) e.getEntity();
         ItemStack item = e.getItem().getItemStack();
-        
+
         if (item.getType() == Material.ENDER_CHEST) {
             updateLore(p, item);
         }
     }
 }
 
-// When the player change his locale it will also update the requirements in the
+// When the player change his locale it will also update the requirements in the 
 // lore to the new selected locale.
 @EventHandler
-public void onPlayerLocaleChange(PlayerLocaleChangeEvent e) {
-    Player p = e.getPlayer();
-
-    for (ItemStack item : p.getInventory()) {
+private void onPlayerLocaleChange(PlayerLocaleChangeEvent e) {
+    for (ItemStack item : e.getPlayer().getInventory()) {
+        if (item == null) continue;
+        
         if (item.getType() == Material.ENDER_CHEST) {
-            updateLore(p, item);
+            // Use 'e.getLocale()' because the locale of 'e.getPlayer()' is 
+            // delayed updated. 
+            updateLore(Locale.valueOf(e.getLocale()), item);
         }
     }
 }
