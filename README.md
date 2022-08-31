@@ -32,7 +32,7 @@ If used and the key is not found, it will use the translation of ``Locale.en_us`
 
 When a player joins the server the player's ``Locale`` is initialized around 2 
 seconds later. Because of that you have to delay any action were you want to use
-the player's ``Locale`` this event.
+the player's ``Locale`` in this event.
 </br><strong>DO NOT</strong> use a delay below 50 Ticks. 
 ```java
 @EventHandler
