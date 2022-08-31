@@ -32,7 +32,7 @@ If used and the key is not found, it will use the translation of ``Locale.en_us`
 
 When a player joins the server the player's ``Locale`` is initialized around 2 
 seconds later. Because of that you have to delay any action were you want to use
-the player's ``Locale``.
+the player's ``Locale`` this event.
 </br><strong>DO NOT</strong> use a delay below 50 Ticks. 
 ```java
 @EventHandler
@@ -84,7 +84,7 @@ Material requirements to open it in the player's language used.
 First we create the lore, but we save it in the ``LocalizedName``.
 We separate each line with a ``,`` but you can use any character you like to use.
 ```java
-public ItemStack getLootboxItem() {
+public ItemStack getSpecialChest() {
     ItemStack item = new ItemStack(Material.ENDER_CHEST);
     ItemMeta meta = item.getItemMeta();
     
@@ -106,7 +106,7 @@ meta.setLocalizedName(lore);
 ```
 
 </br>After that we create a method that replaces ``{0}`` and ``{1}`` with the
-required Materials to open the lootbox in the locale the player is using.
+required Materials to open the special chest in the locale the player is using.
 ```java
 public void updateLore(Locale locale, ItemStack item) {
     ItemMeta meta = item.getItemMeta();
