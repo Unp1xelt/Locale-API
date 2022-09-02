@@ -68,7 +68,7 @@ public final class Translate extends JavaPlugin {
         final LocaleCounter counter = new LocaleCounter(CACHE);
         final UsedLocalesCommand command = new UsedLocalesCommand(counter);
 
-        getServer().getPluginManager().registerEvents(new LocaleChangeListener(counter), this);
+        getServer().getPluginManager().registerEvents(new LocaleListener(counter), this);
         getCommand(COMMAND_NAME).setExecutor(command);
     }
 

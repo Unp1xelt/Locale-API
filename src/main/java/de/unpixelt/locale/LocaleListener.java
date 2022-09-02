@@ -9,6 +9,8 @@
 
 package de.unpixelt.locale;
 
+import de.unpixelt.locale.events.LocalePlayerJoinEvent;
+import de.unpixelt.locale.events.LocalePlayerLocaleChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,13 +21,15 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.UUID;
 
-class LocaleChangeListener implements Listener {
+class LocaleListener implements Listener {
 
-    private final HashMap<UUID, Locale> playerLocale = new HashMap<>();
+    private final HashMap<UUID, Locale> playerLocale;
     private final LocaleCounter counter;
 
-    LocaleChangeListener(LocaleCounter countMap) {
+    LocaleListener(LocaleCounter countMap) {
         this.counter = countMap;
+        this.playerLocale = new HashMap<>();
+
         for(Player p : Bukkit.getOnlinePlayers()) {
             Locale locale = Translate.getLocale(p);
 
@@ -42,8 +46,11 @@ class LocaleChangeListener implements Listener {
 
     @EventHandler
     private void onPlayerLocaleChange(@NotNull PlayerLocaleChangeEvent e) {
+        Player p = e.getPlayer();
         Locale newLocale = Locale.valueOf(e.getLocale());
-        Locale oldLocale = playerLocale.put(e.getPlayer().getUniqueId(), newLocale);
+        Locale oldLocale = playerLocale.put(p.getUniqueId(), newLocale);
+
+        Bukkit.getPluginManager().callEvent(new LocalePlayerLocaleChangeEvent(p, newLocale, oldLocale));
 
         counter.increment(newLocale);
 
@@ -59,7 +66,10 @@ class LocaleChangeListener implements Listener {
         // Locale is initialized around to seconds after this event.
         Bukkit.getScheduler().runTaskLater(Translate.getPlugin(), () -> {
             Player p = e.getPlayer();
-            Locale locale = Translate.getLocale(p);
+            LocalePlayerJoinEvent event = new LocalePlayerJoinEvent(p);
+            Locale locale = event.getLocale();
+
+            Bukkit.getPluginManager().callEvent(event);
 
             // By default, the locale is set to 'en_us'. PlayerLocaleChangeEvent
             // is called, if the player's locale isn't 'en_us'.
