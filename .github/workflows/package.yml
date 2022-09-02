@@ -13,5 +13,5 @@ jobs:
         uses: actions/delete-package-versions@v3
         with: 
           package-name: 'de.unpixelt.locale-api'
-          token: ${{ secrets.PAT }}
-          min-versions-to-keep: 2
+          token: ${{ secrets.UPDATE_ACTION_PAT }}
+          min-versions-to-keep: 0
