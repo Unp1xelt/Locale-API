@@ -1,6 +1,8 @@
 name: Update Github Package
 
-on: deployment
+on: 
+  registry_package:
+    types: [published, updated]
 
 jobs:
   build:
