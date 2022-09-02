@@ -50,11 +50,11 @@ class LocaleListener implements Listener {
         Locale newLocale = Locale.valueOf(e.getLocale());
         Locale oldLocale = playerLocale.put(p.getUniqueId(), newLocale);
 
-        Bukkit.getPluginManager().callEvent(new LocalePlayerLocaleChangeEvent(p, newLocale, oldLocale));
-
         counter.increment(newLocale);
 
         if (oldLocale == null) return;
+
+        Bukkit.getPluginManager().callEvent(new LocalePlayerLocaleChangeEvent(p, newLocale, oldLocale));
 
         counter.decrement(oldLocale);
     }
