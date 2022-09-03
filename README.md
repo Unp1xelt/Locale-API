@@ -88,6 +88,21 @@ private void onPlayerLocaleChange(LocalePlayerLocaleChangeEvent e) {
 ```
 
 
+## Debugger
+
+With the debugger you can enable/disable sending a message to the console when 
+a ``Locale`` is loaded into or cleared from the cache.
+```java
+Translate.getDebugger().setShowCaching(true);
+```
+
+
+## Command
+
+The command ``usedlocales`` can only be executed in the console. It shows what 
+``Locale``'s are used and how many.
+
+
 ## Example
 
 In this example we create a special chest item with a lore which shows the 
