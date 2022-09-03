@@ -2,7 +2,7 @@ name: Update Github Package
 
 on: 
   registry_package:
-    types: [updated]
+    types: [published, updated]
 
 jobs:
   build:
