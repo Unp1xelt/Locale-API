@@ -25,53 +25,57 @@ Make sure to add ``depend: [Locale-API]`` to your ``plugin.yml`` file and the
 ## Caution
 
 Some ``Locale's`` like ``got_de, gv_im, kab_kab, mi_nz, moh_ca, nuk, oj_ca, qya_aa, tzl_tzl`` 
-have a high amount of untranslated Strings (over 100) and should not be used.</br>
+have a high amount of untranslated Strings (over 100) and should not be used.<br>
 If used and the key is not found, it will use the translation of ``Locale.en_us``. 
 
-### PlayerJoinEvent
+## Events
 
-When a player joins the server the player's ``Locale`` is initialized around 2 
-seconds later. Because of that you have to delay any action were you want to use
-the player's ``Locale`` in this event.
-</br><strong>DO NOT</strong> use a delay below 50 Ticks. 
+<p>On the below shown events prefer using the giving locale instead of the player
+object when translating. Doing so is better for performance.
+</p>
+<span style="color:lightgreen;">Good</span>
+
+```diff
++ Translate.getMaterial(e.getLocale(), Material.GRASS_BLOCK);
++ Translate.getMaterial(e.getOldLocale(), Material.GRASS_BLOCK);
+```
+
+<span style="color:tomato;">Bad</span>
+```diff
+- Translate.getMaterial(p, Material.GRASS_BLOCK);
+```
+
+### PlayerJoinEvent >> LocalePlayerJoinEvent
+
+When you want to translate something when a player joins the server use the 
+``LocalePlayerJoinEvent``. 
+<br>
+**DO ONLY** use this event if you translate something or need the player's 
+locale for any reason. It does **NOT** include the _joinMessage_.
 ```java
 @EventHandler
-private void onPlayerJoinEvent(PlayerJoinEvent e) {
-    Bukkit.getScheduler().runTaskLater(YOUR_PLUGIN, () -> {
-        Locale locale = Translate.getLocale(e.getPlayer());
-        ...
-    }, 50L); // 2.5s
+private void onPlayerJoinEvent(LocalePlayerJoinEvent e) {
+    Material mat = Material.GOLD_BLOCK;
+    ItemStack item = new ItemStack(mat);
+    String translation = Translate.getMaterial(e.getLocale(), mat);
+    ItemMeta meta = item.getItemMeta();
+
+    meta.setDisplayName(translation);
+    e.getPlayer().getInventory().addItem(item);
+    ...
 }
 ```
 
-### PlayerLocaleChangeEvent
+### PlayerLocaleChangeEvent >> LocalePlayerLocaleChangeEvent
 
-This event has the same issue as the PlayerJoinEvent. The change of the ``Locale`` 
-is delayed updated in the player object. To get the new locale instantly use 
-``e.getLocale()`` instead. 
+Use ``LocalePlayerLocaleChangeEvent`` instead of _PlayerLocaleChangeEvent_. <br>
+This event also give you the ability to get the locale the player used before.
 ```java
 @EventHandler
-private void onPlayerLocaleChange(PlayerLocaleChangeEvent e) {
-    Locale newLocale = Locale.valueOf(e.getLocale());
-    
-    // DO NOT USE THIS
-    Locale oldLocale = Translate.getLocale(e.getPlayer());
-}
-```
-
-If you want to use the old ``Locale`` of the player later you should save it in 
-a HashMap. Because after around 2 seconds the locale of the player object will be 
-updated to the new ``Locale``.
-```java
-private final HashMap<Player, Locale> playerLocale = new HashMap<>();
-
-@EventHandler
-private void onPlayerLocaleChange(PlayerLocaleChangeEvent e) {
-    Locale newLocale = Locale.valueOf(e.getLocale());
-
-    Player p = e.getPlayer();
-    playerLocale.put(p, Translate.getLocale(p));
-    Locale oldLocale = playerLocale.get(e.getPlayer());
+private void onPlayerLocaleChange(LocalePlayerLocaleChangeEvent e) {
+    Locale oldLocale = e.getOldLocale();    // change from
+    Locale newLocale = e.getLocale();       // to 
+    ...
 }
 ```
 
@@ -99,13 +103,13 @@ public ItemStack getSpecialChest() {
 }
 ```
 
-</br>You can also instantly write it formatted.
+<br>You can also instantly write it formatted.
 ```java
 String lore = "Required to open: ,- $4{0},- §a{1}";
 meta.setLocalizedName(lore);
 ```
 
-</br>After that we create a method that replaces ``{0}`` and ``{1}`` with the
+<br>After that we create a method that replaces ``{0}`` and ``{1}`` with the
 required Materials to open the special chest in the locale the player is using.
 ```java
 public void updateLore(Locale locale, ItemStack item) {
@@ -125,20 +129,15 @@ public void updateLore(Player p, ItemStack item) {
 }
 ```
 
-</br>Last but not least events.
+<br>Last but not least events.
 ```java
 // Give every player that joins a special chest.
 @EventHandler
-private void onPlayerSpawnEvent(PlayerJoinEvent e) {
-    // Because the locale of a player is initialized later, we have to delay
-    // this event. DO NOT go below 50 Ticks (2.5s) or else the locale will
-    // not be initialized properly.
-    Bukkit.getScheduler().runTaskLater(YOUR_PLUGIN, () -> {
-        Player p = e.getPlayer();
-        ItemStack specialChest = getSpecialChest();
-        updateLore(p, specialChest);
-        p.getInventory().addItem(specialChest);
-    }, 50L);
+private void onPlayerJoinEvent(LocalePlayerJoinEvent e) {
+    Player p = e.getPlayer();
+    ItemStack specialChest = getSpecialChest();
+    updateLore(e.getLocale(), specialChest);
+    p.getInventory().addItem(specialChest);
 }
 
 // When a special chest is picked up it will update the requirements in the lore to
@@ -158,14 +157,12 @@ private void onPlayerPickup(EntityPickupItemEvent e) {
 // When the player change his locale it will also update the requirements in the 
 // lore to the new selected locale.
 @EventHandler
-private void onPlayerLocaleChange(PlayerLocaleChangeEvent e) {
+private void onPlayerLocaleChange(LocalePlayerLocaleChangeEvent e) {
     for (ItemStack item : e.getPlayer().getInventory()) {
         if (item == null) continue;
         
         if (item.getType() == Material.ENDER_CHEST) {
-            // Use 'e.getLocale()' because the locale of 'e.getPlayer()' is 
-            // delayed updated. 
-            updateLore(Locale.valueOf(e.getLocale()), item);
+            updateLore(e.getLocale(), item);
         }
     }
 }
@@ -173,4 +170,4 @@ private void onPlayerLocaleChange(PlayerLocaleChangeEvent e) {
 It's not the best for performance but this example is used to show what you can
 do with this API.
 
-</br><strong>Have fun coding </strong>:heart::fox_face:
+<br>**Have fun coding** :heart::fox_face:
