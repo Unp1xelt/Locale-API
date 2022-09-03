@@ -21,6 +21,15 @@ For more translations use ``Translate.getCustomValue(...)`` and lookup for keys
 Make sure to add ``depend: [Locale-API]`` to your ``plugin.yml`` file and the 
 ``Locale-API.jar`` to the plugins folder of your server.
 
+### Maven
+```xml
+<dependency>
+  <groupId>de.unpixelt</groupId>
+  <artifactId>locale-api</artifactId>
+  <version>1.0</version>
+</dependency>
+```
+
 
 ## Caution
 
