@@ -18,7 +18,7 @@ import java.util.Map;
  * LocaleCounter is counting how many players are using a {@code Locale}. If one
  * {@code Locale} counts down to {@code 0} then it is also cleared from the cache.
  *
- * @see LocaleChangeListener
+ * @see LocaleListener
  * @see Locale
  */
 class LocaleCounter {
