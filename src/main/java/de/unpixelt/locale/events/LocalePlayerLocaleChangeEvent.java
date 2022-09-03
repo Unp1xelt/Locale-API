@@ -42,7 +42,7 @@ public class LocalePlayerLocaleChangeEvent extends PlayerEvent {
      *
      * @return The old player's locale. Null when had no locale before.
      */
-    @Nullable
+    @NotNull
     public Locale getOldLocale() {
         return oldLocale;
     }
