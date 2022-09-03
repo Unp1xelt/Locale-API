@@ -99,7 +99,7 @@ Translate.getDebugger().setShowCaching(true);
 
 ## Command
 
-The command ``usedlocales`` can only be executed in the console. It shows what 
+The command ``/usedlocales`` can only be executed in the console. It shows what 
 ``Locale``'s are used and how many.
 
 
