@@ -2,7 +2,7 @@ name: Update Github Package
 
 on: 
   registry_package:
-    types: [published, updated]
+    types: [updated]
 
 jobs:
   build:
@@ -16,4 +16,4 @@ jobs:
         with: 
           package-name: 'de.unpixelt.locale-api'
           token: ${{ secrets.UPDATE_ACTION_PAT }}
-          min-versions-to-keep: 0
+          min-versions-to-keep: 1
