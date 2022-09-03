@@ -59,6 +59,7 @@ private void onPlayerJoinEvent(LocalePlayerJoinEvent e) {
     ItemMeta meta = item.getItemMeta();
 
     meta.setDisplayName(translation);
+    item.setItemMeta(meta);
     e.getPlayer().getInventory().addItem(item);
     ...
 }
