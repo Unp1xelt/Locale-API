@@ -34,15 +34,12 @@ If used and the key is not found, it will use the translation of ``Locale.en_us`
 object when translating. Doing so is better for performance.
 </p>
 
-_Good_
 ```diff
++ Good
 + Translate.getMaterial(e.getLocale(), Material.GRASS_BLOCK);
 + Translate.getMaterial(e.getOldLocale(), Material.GRASS_BLOCK);
-```
-<p></p>
 
-_Bad_
-```diff
+- Bad
 - Translate.getMaterial(p, Material.GRASS_BLOCK);
 ```
 
