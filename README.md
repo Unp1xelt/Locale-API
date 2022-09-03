@@ -33,14 +33,15 @@ If used and the key is not found, it will use the translation of ``Locale.en_us`
 <p>On the below shown events prefer using the giving locale instead of the player
 object when translating. Doing so is better for performance.
 </p>
-<span style="color:lightgreen;">Good</span>
 
+_Good_
 ```diff
 + Translate.getMaterial(e.getLocale(), Material.GRASS_BLOCK);
 + Translate.getMaterial(e.getOldLocale(), Material.GRASS_BLOCK);
 ```
+<p></p>
 
-<span style="color:tomato;">Bad</span>
+_Bad_
 ```diff
 - Translate.getMaterial(p, Material.GRASS_BLOCK);
 ```
