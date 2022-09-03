@@ -16,4 +16,4 @@ jobs:
         with: 
           package-name: 'de.unpixelt.locale-api'
           token: ${{ secrets.UPDATE_ACTION_PAT }}
-          num-old-versions-to-delete: 1
+          min-versions-to-keep: 0
